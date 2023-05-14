@@ -1,0 +1,35 @@
+
+POST   http://localhost:8080/tutor/signup
+content-Type: application/json
+
+{
+    "firstName":"Augustine",
+    "lastName":"Ngobie",
+    "institution":"COMSATS University",
+    "email":"ngobiea@gmail.com",
+    "password":"12345678"
+}
+
+###
+
+POST   http://localhost:8080/tutor/login
+content-Type: application/json
+
+{
+    "email":"ngobiea@gmail.com",
+    "password":"12345678"
+}
+
+
+###
+POST   http://localhost:8080/tutor/logout
+content-Type: application/json
+
+{
+    
+}
+
+
+###
+GET    http://localhost:8080
+content-Type: application/json
