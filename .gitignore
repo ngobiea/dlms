@@ -1,3 +1,8 @@
 .env
 .vscode
 node_modules
+
+shared.http
+student.http
+tutor.http
+
