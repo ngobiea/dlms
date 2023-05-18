@@ -4,10 +4,11 @@ const aws = require("../util/aws");
 const Tutor = require("../model/tutorModel");
 const emailMessages = require("../util/emailMessages");
 
+
 exports.verifyEmail = async (req, res, next) => {
   const { token } = req.params;
   try {
-    const decodedToken = jwt.verify(token, "mySecretJWT");
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const { userType, userId } = decodedToken;
 
     if (userType === "tutor") {
@@ -61,7 +62,7 @@ exports.resendVerificationCode = async (req, res, next) => {
     // Generate new JWT with user information
     const token = jwt.sign(
       { userId: user._id, userType: existingTutor ? "tutor" : "student" },
-      "mySecretJWT",
+      process.env.JWT_SECRET,
       {
         expiresIn: "1h",
       }

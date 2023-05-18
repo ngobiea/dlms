@@ -45,7 +45,8 @@ router.post(
   ],
   studentController.login
 );
-router.get('/classrooms',auth,studentController.getClassrooms)
+router.get('/classrooms', auth, studentController.getClassrooms)
+router.get('/classrooms/:code',auth, studentController.getClassroom)
 
 
 module.exports = router;

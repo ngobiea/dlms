@@ -6,7 +6,7 @@ const aws = require("../util/aws");
 const Student = require("../model/studentModel");
 const Classroom = require("../model/classroom");
 const emailMessages = require("../util/emailMessages");
-
+const util = require("../util/util");
 
 exports.signup = async (req, res, next) => {
   try {
@@ -35,7 +35,9 @@ exports.signup = async (req, res, next) => {
       error.type = "email";
       throw error;
     } else {
-      const hashedPassword = await bcrypt.hash(password, 12);
+      const saltRounds = 24;
+      const salt = await bcrypt.genSalt(saltRounds);
+      const hashedPassword = await bcrypt.hash(password, salt);
       const tutor = new Tutor({
         firstName,
         lastName,
@@ -47,7 +49,7 @@ exports.signup = async (req, res, next) => {
       const newTutor = await tutor.save();
       const token = jwt.sign(
         { userId: newTutor._id, userType: "tutor" },
-        "mySecretJWT",
+        process.env.JWT_SECRET,
         {
           expiresIn: "1h",
         }
@@ -116,7 +118,7 @@ exports.login = async (req, res, next) => {
         email,
         userId: tutor._id.toString(),
       },
-      "secretkey", // Replace with your own secret key
+      process.env.JWT_SECRET, // Replace with your own secret key
       { expiresIn: "1w" }
     );
     res.status(200).json({
@@ -148,6 +150,7 @@ exports.createClassroom = async (req, res, next) => {
       name,
       description,
       code,
+      abbreviation: util.getCapitalLetters(name),
       tutorId: req.userId,
     });
     const newClassroom = await classroom.save();

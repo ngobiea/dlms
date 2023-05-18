@@ -7,6 +7,9 @@ const ClassroomSchema = new Schema({
     type: String,
     required: true,
   },
+  abbreviation: {
+    type: String,
+  },
   description: {
     type: String,
     required: true,

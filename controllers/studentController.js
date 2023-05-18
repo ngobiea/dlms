@@ -32,7 +32,9 @@ exports.signup = async (req, res, next) => {
       error.type = "email";
       throw error;
     } else {
-      const hashedPassword = await bcrypt.hash(password, 12);
+      const saltRounds = 24;
+      const salt = await bcrypt.genSalt(saltRounds);
+      const hashedPassword = await bcrypt.hash(password, salt);
       const student = new Student({
         firstName,
         lastName,
@@ -45,7 +47,7 @@ exports.signup = async (req, res, next) => {
       const newStudent = await student.save();
       const token = jwt.sign(
         { userId: newStudent._id, userType: "student" },
-        "mySecretJWT",
+        process.env.JWT_SECRET,
         {
           expiresIn: "1h",
         }
@@ -115,7 +117,7 @@ exports.login = async (req, res, next) => {
         email,
         userId: student._id.toString(),
       },
-      "secretkey", // Replace with your own secret key
+      process.env.JWT_SECRET, // Replace with your own secret key
       { expiresIn: "1w" }
     );
     res.status(200).json({
@@ -135,10 +137,10 @@ exports.login = async (req, res, next) => {
 exports.getClassrooms = async (req, res, next) => {
   try {
     const classrooms = await Classroom.find({ students: req.studentId })
-      .populate('tutorId', 'firstName lastName email')
-      .select('name description code tutorId students');
+      .populate("tutorId", "firstName lastName email")
+      .select("name description code tutorId students");
     res.status(200).json({
-      message: 'Joined classrooms fetched successfully',
+      message: "Joined classrooms fetched successfully",
       classrooms,
     });
   } catch (err) {
@@ -148,9 +150,24 @@ exports.getClassrooms = async (req, res, next) => {
     next(err);
   }
 };
+exports.getClassroom = async (req, res, next) => {
+  try {
+    const { code } = req.params;
 
-
-
-
-
-
+    const classroomId = await Classroom.findOne({ code }, { _id: 1 });
+    if (!classroomId) {
+      const error = new Error("Classroom not found");
+      error.statusCode = 404;
+      throw error;
+    }
+    res.status(200).json({
+      message: "Classroom fetched successfully",
+      classroomId,
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};

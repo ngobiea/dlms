@@ -3,6 +3,7 @@ const express = require("express");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const bodyParser = require("body-parser");
+const helmet = require("helmet");
 const { default: mongoose } = require("mongoose");
 const cors = require("cors");
 let cookieParser = require("cookie-parser");
@@ -16,6 +17,7 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {});
 
 app.use(cors());
+app.use(helmet());
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use((req, res, next) => {
