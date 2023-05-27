@@ -80,76 +80,12 @@ exports.signup = async (req, res, next) => {
   }
 };
 
-// exports.signup = async (req, res, next) => {
-//   try {
-//     const errors = validationResult(req);
 
-//     if (!errors.isEmpty()) {
-//       const error = new Error("Validation failed");
-//       error.statusCode = 422;
-//       error.data = errors.array();
-//       throw error;
-//     }
 
-//     const { firstName, lastName, institution, email, password } = req.body;
-//     const existingTutor = await Tutor.findOne({ email: email });
-//     const existingStudent = await Student.findOne({ email: email });
 
-//     if (existingTutor) {
-//       const error = new Error("A tutor with this email already exists");
-//       error.statusCode = 409;
-//       error.type = "email";
-//       throw error;
-//     } else if (existingStudent) {
-//       const error = new Error("A Student with this email already exists");
-//       error.statusCode = 409;
-//       error.type = "email";
-//       throw error;
-//     }
-//     const saltRounds = 24;
-//     const salt = await bcrypt.genSalt(saltRounds);
-//     const hashedPassword = await bcrypt.hash(password, salt);
-//     const tutor = new Tutor({
-//       firstName,
-//       lastName,
-//       institution,
-//       email,
-//       password: hashedPassword,
-//       verified: false,
-//     });
-//     const newTutor = await tutor.save();
-//     const token = jwt.sign(
-//       { userId: newTutor._id, userType: "tutor" },
-//       process.env.JWT_SECRET,
-//       {
-//         expiresIn: "1h",
-//       }
-//     );
-//     const verificationLink = `http://localhost:8080/verify-email/${token}`;
-//     try {
-//       aws.sendEmail(
-//         email,
-//         "Verify Your Email to Join Us!",
-//         emailMessages.signUpEmail(firstName, verificationLink)
-//       );
-//     } catch (error) {
-//       console.error(error);
-//       const err = new Error("Failed to send verification email");
-//       err.statusCode = 500;
-//       throw err;
-//     }
-//      res
-//       .status(201)
-//       .json({ message: "Tutor created", tutorId: newTutor._id });
-//   } catch (err) {
-//     if (!err.statusCode) {
-//       err.statusCode = 500;
-//     }
-//     next(err);
-//   }
-// };
 
-// controller
+
+
 exports.login = async (req, res, next) => {
   try {
     const errors = validationResult(req);
