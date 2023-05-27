@@ -44,7 +44,7 @@ exports.verifyEmail = async (req, res, next) => {
 };
 
 exports.resendVerificationCode = async (req, res, next) => {
-  console.log(req.body);
+  
   const { email } = req.body;
   try {
     const existingTutor = await Tutor.findOne({ email: email });

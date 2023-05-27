@@ -5,6 +5,7 @@ const Tutor = require("../model/tutorModel");
 const aws = require("../util/aws");
 const Student = require("../model/studentModel");
 const Classroom = require("../model/classroom");
+const Assignment = require("../model/assignment");
 const emailMessages = require("../util/emailMessages");
 const util = require("../util/util");
 
@@ -21,10 +22,9 @@ exports.signup = async (req, res, next) => {
 
     const { firstName, lastName, institution, email, password } = req.body;
     const existingTutor = await Tutor.findOne({ email: email });
-    const existingStudent = await Student.findOne({ email: email }); // Query to check for existing student with the same email
-    // Query to check for existing tutor with the same email
+    const existingStudent = await Student.findOne({ email: email });
+
     if (existingTutor) {
-      // If a tutor already exists with the same email, return a 409 Conflict status
       const error = new Error("A tutor with this email already exists");
       error.statusCode = 409;
       error.type = "email";
@@ -34,40 +34,43 @@ exports.signup = async (req, res, next) => {
       error.statusCode = 409;
       error.type = "email";
       throw error;
-    } else {
-      const saltRounds = 24;
-      const salt = await bcrypt.genSalt(saltRounds);
-      const hashedPassword = await bcrypt.hash(password, salt);
-      const tutor = new Tutor({
-        firstName,
-        lastName,
-        institution,
-        email,
-        password: hashedPassword,
-        verified: false,
-      });
-      const newTutor = await tutor.save();
-      const token = jwt.sign(
-        { userId: newTutor._id, userType: "tutor" },
-        process.env.JWT_SECRET,
-        {
-          expiresIn: "1h",
-        }
-      );
-      const verificationLink = `http://localhost:8080/verify-email/${token}`;
-      try {
-        aws.sendEmail(
-          email,
-          "Verify Your Email to Join Us!",
-          emailMessages.signUpEmail(firstName, verificationLink)
-        );
-      } catch (error) {
-        console.error(error);
-        const err = new Error("Failed to send verification email");
-        err.statusCode = 500;
-        throw err;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    const tutor = new Tutor({
+      firstName,
+      lastName,
+      institution,
+      email,
+      password: hashedPassword,
+      verified: false,
+    });
+
+    const newTutor = await tutor.save();
+    const token = jwt.sign(
+      { userId: newTutor._id, userType: "tutor" },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
       }
+    );
+    console.log(token)
+    const verificationLink = `http://localhost:8080/verify-email/${token}`;
+
+    try {
+       aws.sendEmail(
+        email,
+        "Verify Your Email to Join Us!",
+        emailMessages.signUpEmail(firstName, verificationLink)
+      );
+
       res.status(201).json({ message: "Tutor created", tutorId: newTutor._id });
+    } catch (error) {
+      console.error(error);
+      const err = new Error("Failed to send verification email");
+      err.statusCode = 500;
+      throw err;
     }
   } catch (err) {
     if (!err.statusCode) {
@@ -76,6 +79,75 @@ exports.signup = async (req, res, next) => {
     next(err);
   }
 };
+
+// exports.signup = async (req, res, next) => {
+//   try {
+//     const errors = validationResult(req);
+
+//     if (!errors.isEmpty()) {
+//       const error = new Error("Validation failed");
+//       error.statusCode = 422;
+//       error.data = errors.array();
+//       throw error;
+//     }
+
+//     const { firstName, lastName, institution, email, password } = req.body;
+//     const existingTutor = await Tutor.findOne({ email: email });
+//     const existingStudent = await Student.findOne({ email: email });
+
+//     if (existingTutor) {
+//       const error = new Error("A tutor with this email already exists");
+//       error.statusCode = 409;
+//       error.type = "email";
+//       throw error;
+//     } else if (existingStudent) {
+//       const error = new Error("A Student with this email already exists");
+//       error.statusCode = 409;
+//       error.type = "email";
+//       throw error;
+//     }
+//     const saltRounds = 24;
+//     const salt = await bcrypt.genSalt(saltRounds);
+//     const hashedPassword = await bcrypt.hash(password, salt);
+//     const tutor = new Tutor({
+//       firstName,
+//       lastName,
+//       institution,
+//       email,
+//       password: hashedPassword,
+//       verified: false,
+//     });
+//     const newTutor = await tutor.save();
+//     const token = jwt.sign(
+//       { userId: newTutor._id, userType: "tutor" },
+//       process.env.JWT_SECRET,
+//       {
+//         expiresIn: "1h",
+//       }
+//     );
+//     const verificationLink = `http://localhost:8080/verify-email/${token}`;
+//     try {
+//       aws.sendEmail(
+//         email,
+//         "Verify Your Email to Join Us!",
+//         emailMessages.signUpEmail(firstName, verificationLink)
+//       );
+//     } catch (error) {
+//       console.error(error);
+//       const err = new Error("Failed to send verification email");
+//       err.statusCode = 500;
+//       throw err;
+//     }
+//      res
+//       .status(201)
+//       .json({ message: "Tutor created", tutorId: newTutor._id });
+//   } catch (err) {
+//     if (!err.statusCode) {
+//       err.statusCode = 500;
+//     }
+//     next(err);
+//   }
+// };
 
 // controller
 exports.login = async (req, res, next) => {
@@ -88,7 +160,6 @@ exports.login = async (req, res, next) => {
       throw error;
     }
     const { email, password } = req.body;
-    console.log(password);
 
     const tutor = await Tutor.findOne({ email: email });
     console.log(tutor);
@@ -145,7 +216,7 @@ exports.createClassroom = async (req, res, next) => {
       throw error;
     }
     const { name, description, code } = req.body;
-    console.log(req.userId);
+
     const classroom = new Classroom({
       name,
       description,
@@ -166,11 +237,10 @@ exports.createClassroom = async (req, res, next) => {
   }
 };
 
-exports.getClassrooms = async ( req,res, next) => {
+exports.getClassrooms = async (req, res, next) => {
   try {
-    console.log(req.userId)
-    const classrooms = await Classroom.find({ tutorId: req.userId })
-    
+    const classrooms = await Classroom.find({ tutorId: req.userId });
+
     res.status(200).json({
       message: "Classrooms fetched successfully",
       classrooms,
@@ -180,5 +250,39 @@ exports.getClassrooms = async ( req,res, next) => {
       err.statusCode = 500;
     }
     next(err);
+  }
+};
+
+exports.createAssignment = async (req, res, next) => {
+  try {
+    // Extract the data from the request body
+    const { title, instruction, points, dueDate, dueTime, classroomId } =
+      req.body;
+
+    // Create a new assignment object
+    const assignment = new Assignment({
+      classroom: classroomId,
+      title,
+      instruction,
+      dueDate,
+      dueTime,
+      points,
+      files: req.files.map((file) => ({
+        name: file.originalname,
+        type: file.mimetype,
+        path: file.location, // Use file.location for S3 uploaded files
+        size: file.size,
+        mimetype: file.mimetype,
+      })),
+    });
+
+    // Save the assignment to the database
+    await assignment.save();
+
+    // Send a success response
+    res.status(201).json({ message: "Assignment created successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "An error occurred" });
   }
 };

@@ -10,7 +10,7 @@ const emailMessages = require("../util/emailMessages");
 exports.signup = async (req, res, next) => {
   try {
     const errors = validationResult(req);
-    console.log(req.body);
+  
     if (!errors.isEmpty()) {
       const error = new Error("Validation failed");
       error.statusCode = 422;
@@ -32,9 +32,8 @@ exports.signup = async (req, res, next) => {
       error.type = "email";
       throw error;
     } else {
-      const saltRounds = 24;
-      const salt = await bcrypt.genSalt(saltRounds);
-      const hashedPassword = await bcrypt.hash(password, salt);
+         const hashedPassword = await bcrypt.hash(password, 12);
+
       const student = new Student({
         firstName,
         lastName,
@@ -88,7 +87,7 @@ exports.login = async (req, res, next) => {
       throw error;
     }
     const { email, password } = req.body;
-    console.log(password);
+  
 
     const student = await Student.findOne({ email: email });
     if (!student) {

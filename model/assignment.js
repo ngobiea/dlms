@@ -11,14 +11,14 @@ const AssignmentSchema = new Schema({
     type: String,
     required: true,
   },
-  description: {
+  instruction: {
     type: String,
   },
   dueDate: {
     type: Date,
   },
   dueTime: {
-    type: Date,
+    type: String,
   },
   points: {
     type: Number,

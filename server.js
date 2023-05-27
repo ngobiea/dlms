@@ -13,6 +13,7 @@ const studentRoutes = require("./routes/studentRoutes");
 const shareRoutes = require("./routes/shareRoutes");
 
 const app = express();
+
 const httpServer = createServer(app);
 const io = new Server(httpServer, {});
 
@@ -28,6 +29,7 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   next();
 });
+
 
 app.use("/tutor", tutorRoutes);
 app.use("/student", studentRoutes);
