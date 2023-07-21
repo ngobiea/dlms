@@ -46,25 +46,26 @@ exports.verifyEmail = async (req, res, next) => {
 exports.resendVerificationCode = async (req, res, next) => {
   
   const { email } = req.body;
+  console.log(req.body)
   try {
     const existingTutor = await Tutor.findOne({ email: email });
     const existingStudent = await Student.findOne({ email: email });
 
     if (!existingTutor && !existingStudent) {
       // If no tutor or student exists with the given email, return 404 Not Found status
-      const error = new Error("No user found with this email");
+      const error = new Error('No user found with this email');
       error.statusCode = 404;
       throw error;
     }
-
-    const user = existingTutor || existingStudent; // Get the user (either tutor or student) based on the email
+    // Get the user (either tutor or student) based on the email
+    const user = existingTutor || existingStudent;
 
     // Generate new JWT with user information
     const token = jwt.sign(
-      { userId: user._id, userType: existingTutor ? "tutor" : "student" },
+      { userId: user._id, userType: existingTutor ? 'tutor' : 'student' },
       process.env.JWT_SECRET,
       {
-        expiresIn: "1h",
+        expiresIn: '1h',
       }
     );
 
@@ -72,17 +73,16 @@ exports.resendVerificationCode = async (req, res, next) => {
     try {
       aws.sendEmail(
         email,
-        "Verify Your Email to Join Us!",
+        'Verify Your Email to Join Us!',
         emailMessages.signUpEmail(user.firstName, verificationLink)
       );
     } catch (error) {
-      console.error(error);
-      const err = new Error("Failed to send verification email");
+      const err = new Error('Failed to send verification email');
       err.statusCode = 500;
       throw err;
     }
 
-    res.status(200).json({ message: "Verification email sent successfully" });
+    res.status(200).json({ message: 'Verification email sent successfully' });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -92,8 +92,9 @@ exports.resendVerificationCode = async (req, res, next) => {
 };
 
 exports.logout = (req, res, next) => {
-  // Clear the token cookie to log the user out
+  // Clear the token cookie to log the user 
   res.clearCookie("token");
+  
   res.status(200).json({ message: "Logout successful" });
 };
 

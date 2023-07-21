@@ -1,0 +1,23 @@
+HTTP/1.1 200 OK
+Access-Control-Allow-Origin: *
+Content-Security-Policy: default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Resource-Policy: same-origin
+Origin-Agent-Cluster: ?1
+Referrer-Policy: no-referrer
+Strict-Transport-Security: max-age=15552000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-DNS-Prefetch-Control: off
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Permitted-Cross-Domain-Policies: none
+X-XSS-Protection: 0
+Access-Control-Allow-Methods: OPTIONS, GET, POST, PUT, PATCH, DELETE
+Access-Control-Allow-Headers: Content-Type, Authorization
+Content-Type: application/json; charset=utf-8
+Content-Length: 318
+ETag: W/"13e-iS//w4vg5Z8vaMUVo2743NcPGNE"
+Date: Sat, 27 May 2023 07:30:32 GMT
+Connection: close
+
+{"message":"Login successful","userId":"64464faebe12efda55767b77","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im5nb2JpZWFAZ21haWwuY29tIiwidXNlcklkIjoiNjQ0NjRmYWViZTEyZWZkYTU1NzY3Yjc3IiwiaWF0IjoxNjg1MTcyNjMyLCJleHAiOjE2ODU3Nzc0MzJ9.bGpHDrRFJEPecacWK3InVMqSAp_Z6xmFE9jwMAHlhFs","email":"ngobiea@gmail.com"}
